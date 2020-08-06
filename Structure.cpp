@@ -45,7 +45,6 @@ void printplanet(struct planet solarSystem[], int num_planet) {
 	}
 }
 
-//BinarySearch
 
 void sortPlanetByRelativMass(struct planet solarSystem[], int num_planet) {
 	struct planet tmp;
