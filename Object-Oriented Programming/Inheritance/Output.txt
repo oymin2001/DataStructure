@@ -1,0 +1,3 @@
+ Draw Shape: pos( 1, 2 ), color( BLACK ), name( Shape_s1 )
+Triangle:pos( 1, 2 ), base( 3 ), height( 4 ), color( RED ), name( Traingle_t1), area( 6 )
+Prism:pos( -858993460, -858993460 ), base( 6 ), height( 7 ), color( BLUE ), name( Prism_p1), volume( 168 )
