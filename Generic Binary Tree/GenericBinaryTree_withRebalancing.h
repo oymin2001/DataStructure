@@ -1,6 +1,7 @@
 #include<iostream>
 #include<list>
 #include"GenericTreeNode.h"
+#include<algorithm>
 
 template<typename E>
 class BinaryTree
@@ -10,11 +11,39 @@ private:
 	int n;
 
 public:
+	TreeNode<E>** getRootaddr() { return &_root; }
+	TreeNode<E>* insertAndRebalance(TreeNode<E>** ppTN, const E& e)
+	{
+		TreeNode<E>* pTN;
+
+		if (*ppTN == NULL)
+		{
+			pTN = new TreeNode<E>(e);
+			*ppTN = pTN;
+			(*ppTN)->setpLeft(NULL);
+			(*ppTN)->setpRight(NULL);
+			n++;
+		}
+		else if (e < (*ppTN)->getElement())
+		{
+			pTN = insertAndRebalance((*ppTN)->getppLeft(), e);
+			(*ppTN)->setpLeft(pTN);
+			*ppTN = reBalance(ppTN);
+		}
+		else
+		{
+			pTN = insertAndRebalance((*ppTN)->getppRight(), e);
+			(*ppTN)->setpRight(pTN);
+			*ppTN = reBalance(ppTN);
+		}
+		return *ppTN;
+	}
+
 	class Position {
 	private:
 		TreeNode<E>* pTN;
 	public:
-		Position(TreeNode<E>* _v = NULL) :pTN(_v) {}
+		Position(TreeNode<E>* _v = NULL):pTN(_v){}
 		void setpTN(TreeNode<E>* pV) { pTN = pV; }
 		TreeNode<E>* getTN() { return pTN; }
 		E& operator*() { return pTN->getElement(); }
@@ -30,7 +59,7 @@ public:
 	};
 	typedef std::list<Position> PositionList;
 public:
-	BinaryTree() :_root(NULL), n(0) {}
+	BinaryTree():_root(NULL),n(0){}
 	int size() const { return n; }
 	bool empty() const { return size == 0; }
 	Position root() const { return Position(_root); }
@@ -178,7 +207,81 @@ protected:
 		if (pTN->getpRight() != NULL)
 			preorder(pTN->getpRight(), pl);
 	}
+	TreeNode<E>* rotate_LL(TreeNode<E>* pParent)
+	{
+		TreeNode<E>* pChild;
 
+		pChild = pParent->getpLeft();
+		pParent->setpLeft(pChild->getpRight());
+		pChild->setpRight(pParent);
+	}
+	TreeNode<E>* rotate_RR(TreeNode<E>* pParent)
+	{
+		TreeNode<E>* pChild;
+
+		pChild = pParent->getpRight();
+		pParent->setpRight(pChild->getpLeft());
+		pChild->setpLeft(pParent);
+	}
+	TreeNode<E>* rotate_LR(TreeNode<E>* pParent)
+	{
+		TreeNode<E>* pChild;
+
+		pChild = pParent->getpRight();
+		pParent->setpRight(rotate_LL(pChild));
+
+		return rotate_RR(pParent);
+	}
+	TreeNode<E>* rotate_RL(TreeNode<E>* pParent)
+	{
+		TreeNode<E>* pChild;
+
+		pChild = pParent->getpLeft();
+		pParent->setpLeft(rotate_RR(pChild));
+
+		return rotate_LL(pParent);
+	}
+	int getHeight(TreeNode<E>* pTN)
+	{
+		int height = 0;
+
+		if (pTN != NULL)
+			height = 1 + max(getHeight(pTN->getpLeft()),getHeight(pTN->getpRight()));
+
+		return height;
+	}
+	int getHeightDiff(TreeNode<E>* pTN)
+	{
+		int heightDiff = 0;
+
+		if (pTN == NULL)
+			return 0;
+		heightDiff = getHeight(pTN->getpLeft()) - getHeight(pTN->getpRight());
+
+		return heightDiff;
+	}
+	TreeNode<E>* reBalance(TreeNode<E>** ppTN)
+	{
+		int heightDiff = 0;
+
+		heightDiff = getHeightDiff(*ppTN);
+		if (heightDiff > 1)
+		{
+			if (getHeightDiff((*ppTN)->getpLeft()) > 0)
+				*ppTN = rotate_LL(*ppTN);
+			else
+				*ppTN = rotate_LR(*ppTN);
+		}
+		else if(heightDiff<-1)
+		{
+			if (getHeightDiff((*ppTN)->getpRight()) < 0)
+				*ppTN = rotate_RR(*ppTN);
+			else
+				*ppTN = rotate_RL(*ppTN);
+		}
+
+		return *ppTN;
+	}
 
 };
 
